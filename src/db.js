@@ -60,6 +60,15 @@ CREATE TABLE IF NOT EXISTS orders (
 );
 `);
 
+// ---------- Safe migrations (add columns to pre-existing databases) ----------
+const orderCols = db.prepare("PRAGMA table_info(orders)").all().map((c) => c.name);
+if (!orderCols.includes("courier_rating")) {
+  db.exec("ALTER TABLE orders ADD COLUMN courier_rating INTEGER");
+}
+if (!orderCols.includes("rating_comment")) {
+  db.exec("ALTER TABLE orders ADD COLUMN rating_comment TEXT");
+}
+
 // ---------- Seed (only runs once, on an empty database) ----------
 const restaurantCount = db.prepare("SELECT COUNT(*) AS c FROM restaurants").get().c;
 if (restaurantCount === 0) {
